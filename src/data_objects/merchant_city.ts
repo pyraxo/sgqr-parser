@@ -10,7 +10,7 @@ export class MerchantCity extends DataObject {
 
     this.validateData(data);
 
-    this.value = data.value ?? 'Singapore';
+    this.value = data.value;
   }
 
   static defaultId = '60';

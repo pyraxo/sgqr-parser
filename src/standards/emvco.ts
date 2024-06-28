@@ -1,6 +1,3 @@
-import { CountryCode } from '../data_objects/country_code';
-import { MerchantName } from '../data_objects/merchant_name';
-import { createRangeObject } from '../utils/helpers';
 import {
   DataObject,
   Interpreter,
@@ -8,21 +5,35 @@ import {
 } from '../common/data_object';
 import { RawParsedData } from '../common/data_payload';
 import { CategoryCode } from '../data_objects/category_code';
+import { CountryCode } from '../data_objects/country_code';
 import { PointOfInitiation } from '../data_objects/initiation';
+import { MerchantCity } from '../data_objects/merchant_city';
+import { MerchantName } from '../data_objects/merchant_name';
 import { PayloadFormat } from '../data_objects/payload_format';
+import { PostalCode } from '../data_objects/postal_code';
+import { TipOrConvenienceIndicator } from '../data_objects/tip_or_convenience';
 import { TransactionAmount } from '../data_objects/transaction_amount';
 import { TransactionCurrency } from '../data_objects/transaction_currency';
+import { ValueOfConvenienceFeeFixed } from '../data_objects/value_of_convenience_fixed';
+import { ValueOfConvenienceFeePercentage } from '../data_objects/value_of_convenience_percentage';
 import { MerchantAccountInformation } from '../merchants/merchant_account_info';
+import { createRangeObject } from '../utils/helpers';
 
 export type EMVCoPayload = {
-  id: string;
-  value: string;
+  // Dynamic mapping could work, but we want it to be compliant with the standard
   payloadFormat: PayloadFormat;
   pointOfInitiation?: PointOfInitiation;
   merchantAccountInformations: MerchantAccountInformation[];
   categoryCode: CategoryCode;
   transactionCurrency: TransactionCurrency;
   transactionAmount?: TransactionAmount;
+  tipOrConvenienceIndicator?: TipOrConvenienceIndicator;
+  valueOfConvenienceFixed?: ValueOfConvenienceFeeFixed;
+  valueOfConveniencePercentage?: ValueOfConvenienceFeePercentage;
+  countryCode: CountryCode;
+  merchantName: MerchantName;
+  merchantCity: MerchantCity;
+  postalCode?: PostalCode;
 };
 
 export type ElementResolver = (
@@ -33,18 +44,17 @@ export type ElementResolver = (
 export const EMVCoStandard: Record<string, typeof DataObject> = {
   '00': PayloadFormat,
   '01': PointOfInitiation,
-  ...createRangeObject(2, 50, MerchantAccountInformation),
-  // '51': null,
+  ...createRangeObject(2, 51, MerchantAccountInformation),
   '52': CategoryCode,
   '53': TransactionCurrency,
   '54': TransactionAmount,
-  // '55': null,
-  // '56': null,
-  // '57': null,
+  '55': TipOrConvenienceIndicator,
+  '56': ValueOfConvenienceFeeFixed,
+  '57': ValueOfConvenienceFeePercentage,
   '58': CountryCode,
   '59': MerchantName,
-  // '60': null, // Merchant city
-  // '61': null, // Postal code
+  '60': MerchantCity,
+  '61': PostalCode,
   // '62': null, // Additional data
   // '63': null, // CRC
   // '64': null, // Merchant information language
@@ -59,6 +69,13 @@ export class EMVCo {
   categoryCode: CategoryCode;
   transactionCurrency: TransactionCurrency;
   transactionAmount?: TransactionAmount;
+  tipOrConvenienceIndicator?: TipOrConvenienceIndicator;
+  valueOfConvenienceFixed?: ValueOfConvenienceFeeFixed;
+  valueOfConveniencePercentage?: ValueOfConvenienceFeePercentage;
+  countryCode: CountryCode;
+  merchantName: MerchantName;
+  merchantCity: MerchantCity;
+  postalCode?: PostalCode;
 
   constructor(data: EMVCoPayload) {
     this.payloadFormat = data.payloadFormat ?? new PayloadFormat();
@@ -67,15 +84,20 @@ export class EMVCo {
     this.categoryCode = data.categoryCode;
     this.transactionCurrency = data.transactionCurrency;
     this.transactionAmount = data.transactionAmount;
+    this.tipOrConvenienceIndicator = data.tipOrConvenienceIndicator;
+    this.valueOfConvenienceFixed = data.valueOfConvenienceFixed;
+    this.valueOfConveniencePercentage = data.valueOfConveniencePercentage;
+    this.countryCode = data.countryCode;
+    this.merchantName = data.merchantName;
+    this.merchantCity = data.merchantCity;
+    this.postalCode = data.postalCode;
   }
 
   static idToClassMap = EMVCoStandard;
 
-  static contextWithResolvers(
-    idToClassMap: Record<string, typeof DataObject>
-  ): Record<string, Interpreter> {
+  static contextWithResolvers(this: typeof EMVCo): Record<string, Interpreter> {
     return Object.fromEntries(
-      Object.entries(idToClassMap)
+      Object.entries(this.idToClassMap)
         .sort(([a], [b]) => parseInt(a) - parseInt(b))
         .map(([k, v], idx) =>
           v
@@ -86,18 +108,15 @@ export class EMVCo {
   }
 
   static fromString(this: typeof EMVCo, value: string): EMVCo {
-    const data = parseDataWithContext(
-      this.contextWithResolvers(this.idToClassMap),
-      value
-    );
+    const data = parseDataWithContext(this.contextWithResolvers(), value);
     const payload = this.resolvePayload(data, this.elementResolver.bind(this));
-    return new this(payload);
+    return new this(payload as EMVCoPayload);
   }
 
   static resolvePayload(
     data: (RawParsedData | DataObject)[],
     resolver: ElementResolver
-  ): EMVCoPayload {
+  ): Record<string, any> {
     return data.reduce(
       (acc, element) => resolver(acc, element),
       {} as EMVCoPayload
@@ -105,41 +124,62 @@ export class EMVCo {
   }
 
   static elementResolver(
-    this: typeof EMVCo,
     payload: EMVCoPayload,
     element: RawParsedData | DataObject
   ): EMVCoPayload {
-    if (element instanceof PayloadFormat) {
+    if (element instanceof PayloadFormat)
       return { ...payload, payloadFormat: element };
-    } else if (element instanceof PointOfInitiation) {
+    if (element instanceof PointOfInitiation)
       return { ...payload, pointOfInitiation: element };
-    } else if (element instanceof MerchantAccountInformation) {
+    if (element instanceof MerchantAccountInformation)
       return {
         ...payload,
         merchantAccountInformations: (
           payload.merchantAccountInformations ?? []
         ).concat(element),
       };
-    } else if (element instanceof CategoryCode) {
+    if (element instanceof CategoryCode)
       return { ...payload, categoryCode: element };
-    } else if (element instanceof TransactionCurrency) {
+    if (element instanceof TransactionCurrency)
       return { ...payload, transactionCurrency: element };
-    } else if (element instanceof TransactionAmount) {
+    if (element instanceof TransactionAmount)
       return { ...payload, transactionAmount: element };
-    }
+    if (element instanceof TipOrConvenienceIndicator)
+      return { ...payload, tipOrConvenienceIndicator: element };
+    if (element instanceof ValueOfConvenienceFeeFixed)
+      return { ...payload, valueOfConvenienceFixed: element };
+    if (element instanceof ValueOfConvenienceFeePercentage)
+      return { ...payload, valueOfConveniencePercentage: element };
+    if (element instanceof CountryCode)
+      return { ...payload, countryCode: element };
+    if (element instanceof MerchantName)
+      return { ...payload, merchantName: element };
+    if (element instanceof MerchantCity)
+      return { ...payload, merchantCity: element };
+    if (element instanceof PostalCode)
+      return { ...payload, postalCode: element };
     return payload;
   }
 
   toJSON(): Record<string, any> {
     return {
       payloadFormat: this.payloadFormat.toJSON(),
-      pointOfInitiation: this.pointOfInitiation?.toJSON(),
+      pointOfInitiation: this.pointOfInitiation?.toJSON() ?? null,
       merchantAccountInformations: this.merchantAccountInformations.map(info =>
         info.toJSON()
       ),
       categoryCode: this.categoryCode.toJSON(),
       transactionCurrency: this.transactionCurrency.toJSON(),
-      transactionAmount: this.transactionAmount?.toJSON(),
+      transactionAmount: this.transactionAmount?.toJSON() ?? null,
+      tipOrConvenienceIndicator:
+        this.tipOrConvenienceIndicator?.toJSON() ?? null,
+      valueOfConvenienceFixed: this.valueOfConvenienceFixed?.toJSON() ?? null,
+      valueOfConveniencePercentage:
+        this.valueOfConveniencePercentage?.toJSON() ?? null,
+      countryCode: this.countryCode.toJSON(),
+      merchantName: this.merchantName.toJSON(),
+      merchantCity: this.merchantCity.toJSON(),
+      postalCode: this.postalCode?.toJSON() ?? null,
     };
   }
 }

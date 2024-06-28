@@ -18,6 +18,10 @@ export class MerchantName extends DataObject {
   static defaultId = '59';
 
   validateData(data: MerchantNameData): void {
+    if (!data.value) {
+      throw this.createError('value is required');
+    }
+
     if (data.value && !/^.{0,25}$/.test(data.value)) {
       // TODO: Proper country code check
       throw this.createError(

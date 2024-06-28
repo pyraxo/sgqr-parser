@@ -47,9 +47,9 @@ export class SGQR extends EMVCo {
         };
       }
     }
-    if (element instanceof SGMerchantInformation) {
+    if (element instanceof SGMerchantInformation)
       return { ...payload, sgMerchantInformation: element };
-    }
+
     return super.elementResolver(payload, element) as SGQRPayload;
   };
 
