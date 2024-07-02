@@ -1,8 +1,9 @@
-import { GrabPayMerchant } from '../merchants/grabpay';
 import { DataObject } from '../common/data_object';
 import { RawParsedData } from '../common/data_payload';
 import { SingtelDashMerchant } from '../merchants/dash';
 import { Merchant } from '../merchants/generic';
+import { GrabPayMerchant } from '../merchants/grabpay';
+import { NETSMerchant } from '../merchants/nets';
 import { PayNowMerchant } from '../merchants/paynow';
 import { SGMerchantInformation } from '../merchants/sg_merchant';
 import { createRangeObject } from '../utils/helpers';
@@ -22,6 +23,7 @@ export const SGMerchants: Record<string, typeof Merchant> = {
   'SG.COM.DASH.WWW': SingtelDashMerchant,
   'SG.PAYNOW': PayNowMerchant,
   'COM.GRAB': GrabPayMerchant,
+  'SG.COM.NETS': NETSMerchant,
 };
 
 export class SGQR extends EMVCo {
