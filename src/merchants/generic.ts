@@ -1,6 +1,6 @@
 import { DataObject } from '../common/data_object';
 import { DataPayload } from '../common/data_payload';
-import { MerchantAccountInformation } from './merchant_account_info';
+import { MerchantAccountInformation } from '../data_objects/merchant_account_info';
 
 export interface MerchantData extends DataPayload {
   guid: string;
@@ -20,10 +20,10 @@ export class Merchant extends MerchantAccountInformation {
   guid: string;
 
   validateData(data: DataPayload): void {
-    if (!data.guid) throw this.createError('guid is required');
+    if (!data.guid) return this.createError('guid is required');
 
     if (data.guid.length < 1 || data.guid.length > 32) {
-      throw this.createError('guid must be between 1 and 32 characters');
+      this.createError('guid must be between 1 and 32 characters');
     }
   }
 
@@ -45,8 +45,8 @@ export class Merchant extends MerchantAccountInformation {
   //   return super.fromString(value) as Merchant;
   // }
 
-  createError(message: string): Error {
-    return new Error(`${this.constructor.name}: ${message}`);
+  get merchantType(): string {
+    return this.constructor.name;
   }
 
   toJSON(): Record<string, any> {
@@ -54,6 +54,7 @@ export class Merchant extends MerchantAccountInformation {
       id: this.id,
       value: this.value,
       guid: this.guid,
+      merchant_type: this.merchantType,
     };
   }
 }

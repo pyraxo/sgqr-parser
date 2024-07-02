@@ -15,11 +15,11 @@ export class TransactionAmount extends DataObject {
 
   validateData(data: DataPayload): void {
     if (!data.value) {
-      throw this.createError('value is required');
+      return this.createError('value is required');
     }
 
-    if (data.value && !/^\w{1,13}$/.test(data.value)) {
-      throw this.createError('value must be 1-13 characters');
+    if (data.value && !/^.{1,13}$/.test(data.value)) {
+      return this.createError('value must be 1-13 characters');
     }
   }
 }

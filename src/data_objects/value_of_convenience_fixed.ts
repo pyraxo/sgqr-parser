@@ -21,7 +21,7 @@ export class ValueOfConvenienceFeeFixed extends DataObject {
 
   validateData(data: ValueOfConvenienceFeeFixedData): void {
     if (data.value && !/^(?=.{1,13}$)\d+(\.\d{0,2})?$/g.test(data.value)) {
-      throw this.createError(
+      this.createError(
         'value must follow value of convenience fee fixed format'
       );
     }

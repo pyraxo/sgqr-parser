@@ -12,11 +12,11 @@ export class MerchantAccountInformation extends DataObject {
     return {};
   }
 
-  static fromString(
+  static fromString<T extends typeof DataObject>(
     this: typeof MerchantAccountInformation,
     value: string,
     id: string
-  ): DataObject {
+  ): InstanceType<T> {
     const data = parseDataWithContext(this.contextMap, value);
     const payload = this.dataObjectContext.reduce(
       (acc, _, idx: number) => ({
@@ -25,6 +25,6 @@ export class MerchantAccountInformation extends DataObject {
       }),
       { id, value }
     );
-    return new this(payload);
+    return new this(payload) as InstanceType<T>;
   }
 }

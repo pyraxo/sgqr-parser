@@ -1,7 +1,7 @@
 import { EMVCo } from '../standards/emvco';
 import { DataObject } from '../common/data_object';
 import { DataPayload } from '../common/data_payload';
-import { crc16 } from '../utils/crc';
+import { crc16 } from '../utils';
 
 interface CRCData extends DataPayload {
   value: string;
@@ -25,11 +25,11 @@ export class CRC extends DataObject {
 
   validateData(data: CRCData): void {
     if (!data.value) {
-      throw this.createError('value is required');
+      this.createError('value is required');
     }
 
     if (data.value && !/^\w{4}$/.test(data.value)) {
-      throw this.createError('value must be a 4 character hex string');
+      this.createError('value must be a 4 character hex string');
     }
   }
 
@@ -58,6 +58,7 @@ export class CRC extends DataObject {
           .toString()
           .padStart(2, '0')}${singleValue.value}`;
       });
+    console.log(entries);
     entries.push('6304');
     return crc16(entries.join(''));
   }

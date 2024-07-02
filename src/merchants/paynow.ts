@@ -1,4 +1,4 @@
-import { getDateFromYYYYMMDD, isValidYYYYMMDD } from '../utils/date';
+import { getDateFromYYYYMMDD } from '../utils';
 import { Merchant, MerchantData } from './generic';
 
 interface PayNowMerchantData extends MerchantData {
@@ -33,19 +33,18 @@ export class PayNowMerchant extends Merchant {
   static guid = 'SG.PAYNOW';
 
   validateData(data: PayNowMerchantData): void {
-    if (!data.proxyValue) throw super.createError('proxyValue is required');
+    if (!data.proxyValue) super.createError('proxyValue is required');
     if (!['0', '1', '2'].includes(data.proxyType)) {
-      throw super.createError('proxyType must be 0, 1 or 2');
+      super.createError('proxyType must be 0, 1 or 2');
     }
 
     if (data.proxyType === '0' && data.proxyValue.length > 15) {
-      throw super.createError(
-        'proxyValue must be at most 15 characters for Mobile'
-      );
+      super.createError('proxyValue must be at most 15 characters for Mobile');
     }
 
-    if (data.expiryDate && !isValidYYYYMMDD(data.expiryDate))
-      throw this.createError('expiryDate must follow the format YYYYMMDD');
+    // Many QRs have data in the 05 field that is not a valid expiry date
+    // if (data.expiryDate && !isValidYYYYMMDD(data.expiryDate))
+    //   this.createError('expiryDate must follow the format YYYYMMDD');
   }
 
   static dataObjectContext: string[] = [
@@ -69,9 +68,10 @@ export class PayNowMerchant extends Merchant {
     return this._isEditableAmount === '1';
   }
 
-  get expiryDate(): Date | null {
+  get expiryDate(): Date | string | null {
     if (!this._expiryDate) return null;
-    return getDateFromYYYYMMDD(this._expiryDate);
+    const date = getDateFromYYYYMMDD(this._expiryDate);
+    return isNaN(date.getTime()) ? this._expiryDate : date;
   }
 
   toJSON(): Record<string, any> {

@@ -1,16 +1,17 @@
 import { DataObject } from '../common/data_object';
 import { RawParsedData } from '../common/data_payload';
 import { SingtelDashMerchant } from '../merchants/dash';
+import { FavePayMerchant } from '../merchants/favepay';
 import { Merchant } from '../merchants/generic';
 import { GrabPayMerchant } from '../merchants/grabpay';
 import { NETSMerchant } from '../merchants/nets';
 import { PayNowMerchant } from '../merchants/paynow';
 import { SGMerchantInformation } from '../merchants/sg_merchant';
-import { createRangeObject } from '../utils/helpers';
+import { createRangeObject } from '../utils';
 import { EMVCo, EMVCoPayload, EMVCoStandard } from './emvco';
 
 type SGQRPayload = EMVCoPayload & {
-  sgMerchantInformation: SGMerchantInformation;
+  sgMerchantInformation?: SGMerchantInformation;
 };
 
 export const SGQRStandard = {
@@ -24,10 +25,11 @@ export const SGMerchants: Record<string, typeof Merchant> = {
   'SG.PAYNOW': PayNowMerchant,
   'COM.GRAB': GrabPayMerchant,
   'SG.COM.NETS': NETSMerchant,
+  'COM.MYFAVE': FavePayMerchant,
 };
 
 export class SGQR extends EMVCo {
-  sgMerchantInformation: SGMerchantInformation;
+  sgMerchantInformation?: SGMerchantInformation;
 
   constructor(data: SGQRPayload) {
     super(data);
@@ -62,7 +64,7 @@ export class SGQR extends EMVCo {
   toJSON(): Record<string, any> {
     return {
       ...super.toJSON(),
-      sgMerchantInformation: this.sgMerchantInformation.toJSON(),
+      sgMerchantInformation: this.sgMerchantInformation?.toJSON(),
     };
   }
 }

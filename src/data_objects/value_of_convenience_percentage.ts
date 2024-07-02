@@ -21,7 +21,7 @@ export class ValueOfConvenienceFeePercentage extends DataObject {
 
   validateData(data: ValueOfConvenienceFeePercentageData): void {
     if (data.value && !/^\d{1,2}\.?\d{0,2}$/g.test(data.value)) {
-      throw this.createError('value must be values between 00.01 and 99.99');
+      this.createError('value must be values between 00.01 and 99.99');
     }
   }
 }

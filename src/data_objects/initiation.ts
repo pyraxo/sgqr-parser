@@ -21,7 +21,7 @@ export class PointOfInitiation extends DataObject {
 
   validateData(data: PointOfInitiationData): void {
     if (!['11', '12'].includes(data.value)) {
-      throw this.createError('value must be 11 or 12');
+      this.createError('value must be 11 or 12');
     }
   }
 

@@ -1,4 +1,4 @@
-import { getDateFromYYYYMMDD, isValidYYYYMMDD } from '../utils/date';
+import { getDateFromYYYYMMDD, isValidYYYYMMDD } from '../utils';
 import { Merchant, MerchantData } from './generic';
 
 interface SGMerchantData extends MerchantData {
@@ -52,34 +52,34 @@ export class SGMerchantInformation extends Merchant {
   private _revisionDate: string;
 
   validateData(data: SGMerchantData): void {
-    if (!data.sgqrId) throw super.createError('sgqrId is required');
+    if (!data.sgqrId) super.createError('sgqrId is required');
     if (!/^\d{6}\w{6}$/.test(data.sgqrId)) {
-      throw super.createError('sgqrId must be in the format YYYYMMDDNNNNNN');
+      super.createError('sgqrId must be in the format YYYYMMDDNNNNNN');
     }
 
-    if (!data.version) throw super.createError('version is required');
+    if (!data.version) super.createError('version is required');
     if (!/^\d{2}\.\d{4}$/.test(data.version))
-      throw super.createError('version must be in the format AA.NNNN');
+      super.createError('version must be in the format AA.NNNN');
 
-    if (!data.postalCode) throw super.createError('postalCode is required');
+    if (!data.postalCode) super.createError('postalCode is required');
     if (!/^\d{6,10}$/.test(data.postalCode))
-      throw super.createError('postalCode must be 6-10 digits');
+      super.createError('postalCode must be 6-10 digits');
 
-    if (!data.level) throw super.createError('level is required');
+    if (!data.level) super.createError('level is required');
     if (!/^\w{1,3}$/.test(data.level))
-      throw super.createError('level must be 2-3 alphanumeric characters');
+      super.createError('level must be 2-3 alphanumeric characters');
 
-    if (!data.unit) throw super.createError('unit is required');
+    if (!data.unit) super.createError('unit is required');
     if (!/^\w{1,5}$/.test(data.unit))
-      throw super.createError('unit must be 1-5 alphanumeric characters');
+      super.createError('unit must be 1-5 alphanumeric characters');
 
-    if (!data.misc) throw super.createError('misc is required');
+    if (!data.misc) super.createError('misc is required');
     if (!/^\w{1,10}$/.test(data.misc))
-      throw super.createError('misc must be 1-10 alphanumeric characters');
+      super.createError('misc must be 1-10 alphanumeric characters');
 
-    if (!data.revisionDate) throw super.createError('revisionDate is required');
+    if (!data.revisionDate) super.createError('revisionDate is required');
     if (!isValidYYYYMMDD(data.revisionDate))
-      throw super.createError('revisionDate must be in the format YYYYMMDD');
+      super.createError('revisionDate must be in the format YYYYMMDD');
   }
 
   get firstCreationDate(): Date {
@@ -88,9 +88,5 @@ export class SGMerchantInformation extends Merchant {
 
   get revisionDate(): Date {
     return new Date(getDateFromYYYYMMDD(this._revisionDate));
-  }
-
-  createError(message: string): Error {
-    return super.createError(message);
   }
 }

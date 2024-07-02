@@ -1,4 +1,4 @@
-import { ParseError } from '../utils/errors';
+import { ParseError } from '../utils';
 
 export interface DataPayload {
   id: string;

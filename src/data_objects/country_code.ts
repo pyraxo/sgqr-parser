@@ -19,12 +19,12 @@ export class CountryCode extends DataObject {
 
   validateData(data: CountryCodeData): void {
     if (!data.value) {
-      throw this.createError('value is required');
+      this.createError('value is required');
     }
 
     if (data.value && !/^[A-Z]{2}$/.test(data.value)) {
       // TODO: Proper country code check
-      throw this.createError('value must be a valid country code');
+      this.createError('value must be a valid country code');
     }
   }
 }

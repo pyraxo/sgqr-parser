@@ -19,12 +19,12 @@ export class MerchantName extends DataObject {
 
   validateData(data: MerchantNameData): void {
     if (!data.value) {
-      throw this.createError('value is required');
+      this.createError('value is required');
     }
 
     if (data.value && !/^.{0,25}$/.test(data.value)) {
       // TODO: Proper country code check
-      throw this.createError(
+      this.createError(
         'value must be an alphanumeric string of up to 25 characters'
       );
     }

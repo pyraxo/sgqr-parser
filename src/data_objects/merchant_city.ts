@@ -17,11 +17,11 @@ export class MerchantCity extends DataObject {
 
   validateData(data: DataPayload): void {
     if (!data.value) {
-      throw this.createError('value is required');
+      this.createError('value is required');
     }
 
     if (data.value && !/^\w{0,15}$/.test(data.value)) {
-      throw this.createError(
+      this.createError(
         'value must be an alphanumeric string of up to 15 characters'
       );
     }

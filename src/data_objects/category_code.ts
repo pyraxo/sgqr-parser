@@ -6,22 +6,21 @@ interface CategoryCodeData extends DataPayload {
 }
 
 export class CategoryCode extends DataObject {
-  constructor(data: CategoryCodeData) {
+  constructor(data?: CategoryCodeData) {
     super({
       ...data,
       id: '52',
+      value: data?.value ?? '0000',
     });
 
-    this.validateData(data);
-
-    this.value = data.value ?? '0000';
+    if (data) this.validateData(data);
   }
 
   static defaultId = '52';
 
   validateData(data: CategoryCodeData): void {
     if (data.value && !/^\d{4}$/.test(data.value)) {
-      throw this.createError('value must be 4 digits');
+      this.createError('value must be 4 digits');
     }
   }
 }

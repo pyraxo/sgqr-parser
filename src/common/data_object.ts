@@ -1,8 +1,4 @@
-import {
-  InvalidElementError,
-  InvalidLengthError,
-  ParseError,
-} from '../utils/errors';
+import { InvalidElementError, InvalidLengthError, ParseError } from '../utils';
 import { DataPayload, RawParsedData } from './data_payload';
 
 export type Interpreter = (value: string, id?: string) => DataObject;
@@ -61,7 +57,7 @@ export const parseDataWithContext = (
 };
 export class DataObject {
   constructor(data: DataPayload) {
-    if (!data.id) throw new Error('DataObject: id is required');
+    if (!data.id) this.createError('id is required');
     this.id = data.id;
     this.value = data.value;
   }
@@ -85,7 +81,8 @@ export class DataObject {
     return new this({ id: id ?? this.defaultId, value });
   }
 
-  createError(message: string): Error {
-    return new Error(`${this.constructor.name}: ${message}`);
+  createError(message: string): void {
+    const error = new Error(`${this.constructor.name}: ${message}`);
+    console.error(error);
   }
 }

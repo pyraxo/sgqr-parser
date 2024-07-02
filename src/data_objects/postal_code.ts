@@ -21,7 +21,7 @@ export class PostalCode extends DataObject {
 
   validateData(data: PostalCodeData): void {
     if (data.value && !/^\w{6,10}$/.test(data.value)) {
-      throw this.createError('value must be between 6 to 10 characters');
+      this.createError('value must be between 6 to 10 characters');
     }
   }
 }
