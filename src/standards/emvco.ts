@@ -6,6 +6,7 @@ import {
 import { RawParsedData } from '../common/data_payload';
 import { CategoryCode } from '../data_objects/category_code';
 import { CountryCode } from '../data_objects/country_code';
+import { CRC } from '../data_objects/crc';
 import { PointOfInitiation } from '../data_objects/initiation';
 import { MerchantCity } from '../data_objects/merchant_city';
 import { MerchantName } from '../data_objects/merchant_name';
@@ -34,6 +35,7 @@ export type EMVCoPayload = {
   merchantName: MerchantName;
   merchantCity: MerchantCity;
   postalCode?: PostalCode;
+  crc: CRC;
 };
 
 export type ElementResolver = (
@@ -55,8 +57,8 @@ export const EMVCoStandard: Record<string, typeof DataObject> = {
   '59': MerchantName,
   '60': MerchantCity,
   '61': PostalCode,
-  // '62': null, // Additional data
-  // '63': null, // CRC
+  // '62': PostalCode, // Additional data
+  '63': CRC, // CRC
   // '64': null, // Merchant information language
   // ...Array.from({ length: 15 }, (_, i) => String(i + 65)).map(id => [id, null]),
   // ...Array.from({ length: 20 }, (_, i) => String(i + 80)).map(id => [id, null]),
@@ -76,6 +78,7 @@ export class EMVCo {
   merchantName: MerchantName;
   merchantCity: MerchantCity;
   postalCode?: PostalCode;
+  crc: CRC;
 
   constructor(data: EMVCoPayload) {
     this.payloadFormat = data.payloadFormat ?? new PayloadFormat();
@@ -91,6 +94,7 @@ export class EMVCo {
     this.merchantName = data.merchantName;
     this.merchantCity = data.merchantCity;
     this.postalCode = data.postalCode;
+    this.crc = data.crc;
   }
 
   static idToClassMap = EMVCoStandard;
@@ -158,7 +162,12 @@ export class EMVCo {
       return { ...payload, merchantCity: element };
     if (element instanceof PostalCode)
       return { ...payload, postalCode: element };
+    if (element instanceof CRC) return { ...payload, crc: element };
     return payload;
+  }
+
+  get crcValue(): string {
+    return this.crc.value;
   }
 
   toJSON(): Record<string, any> {
@@ -180,6 +189,7 @@ export class EMVCo {
       merchantName: this.merchantName.toJSON(),
       merchantCity: this.merchantCity.toJSON(),
       postalCode: this.postalCode?.toJSON() ?? null,
+      crc: this.crc.toJSON(),
     };
   }
 }

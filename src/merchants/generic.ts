@@ -21,6 +21,10 @@ export class Merchant extends MerchantAccountInformation {
 
   validateData(data: DataPayload): void {
     if (!data.guid) throw this.createError('guid is required');
+
+    if (data.guid.length < 1 || data.guid.length > 32) {
+      throw this.createError('guid must be between 1 and 32 characters');
+    }
   }
 
   static dataObjectContext: string[] = ['guid'];
@@ -48,6 +52,7 @@ export class Merchant extends MerchantAccountInformation {
   toJSON(): Record<string, any> {
     return {
       id: this.id,
+      value: this.value,
       guid: this.guid,
     };
   }

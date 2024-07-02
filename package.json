@@ -119,8 +119,5 @@
       "@semantic-release/npm",
       "@semantic-release/github"
     ]
-  },
-  "dependencies": {
-    "crc": "^4.3.2"
   }
 }

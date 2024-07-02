@@ -1,5 +1,7 @@
+import { GrabPayMerchant } from '../merchants/grabpay';
 import { DataObject } from '../common/data_object';
 import { RawParsedData } from '../common/data_payload';
+import { SingtelDashMerchant } from '../merchants/dash';
 import { Merchant } from '../merchants/generic';
 import { PayNowMerchant } from '../merchants/paynow';
 import { SGMerchantInformation } from '../merchants/sg_merchant';
@@ -17,8 +19,9 @@ export const SGQRStandard = {
 };
 
 export const SGMerchants: Record<string, typeof Merchant> = {
-  // 'SG.COM.DASH.WWW': SingtelDashMerchant,
+  'SG.COM.DASH.WWW': SingtelDashMerchant,
   'SG.PAYNOW': PayNowMerchant,
+  'COM.GRAB': GrabPayMerchant,
 };
 
 export class SGQR extends EMVCo {
@@ -36,8 +39,9 @@ export class SGQR extends EMVCo {
     element: RawParsedData | DataObject
   ): SGQRPayload => {
     if (element instanceof Merchant) {
-      if (element.guid in SGMerchants) {
-        const merchantClass = SGMerchants[element.guid];
+      const guid = element.guid.toUpperCase();
+      if (guid in SGMerchants) {
+        const merchantClass = SGMerchants[guid];
         return {
           ...payload,
           merchantAccountInformations: [
