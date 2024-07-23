@@ -60,7 +60,9 @@
     "husky": "^6.0.0",
     "jest": "^27.2.0",
     "lint-staged": "^13.2.1",
-    "prettier": "^2.2.1",
+    "madge": "^7.0.0",
+    "oclif": "^4.13.12",
+    "prettier": "2.8.8",
     "semantic-release": "^21.0.1",
     "ts-jest": "^27.0.5",
     "ts-node": "^10.2.1",
@@ -119,7 +121,16 @@
       "@semantic-release/github"
     ]
   },
+  "bin": {
+    "sgqr": "./bin/run.js"
+  },
+  "oclif": {
+    "bin": "sgqr",
+    "commands": "./dist/commands",
+    "dirname": "sgqr",
+    "topicSeparator": " "
+  },
   "dependencies": {
-    "crc": "^4.3.2"
+    "@oclif/core": "^4.0.8"
   }
 }

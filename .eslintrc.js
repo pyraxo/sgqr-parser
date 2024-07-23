@@ -13,6 +13,8 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
     'plugin:prettier/recommended',
+    'oclif',
+    'oclif-typescript',
   ],
   rules: {
     'prettier/prettier': 'warn',
